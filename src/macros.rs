@@ -1,0 +1,131 @@
+use std::fmt;
+
+use keys::*;
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
+pub enum MacroOutput {
+    KeyPresses(Vec<KeyPress>),
+    //    Shortcut(Shortcut),
+}
+
+impl MacroOutput {
+    pub fn from_string(s:&str)-> MacroOutput {
+        let mut key_presses = Vec::new();
+        for c in s.chars() {
+            let char_to_key = char_to_key(&c);
+            let requires_shift = requires_shift(&c);
+            let key_press = KeyPress::new(requires_shift, char_to_key);
+            key_presses.push(key_press)
+        }
+        MacroOutput::KeyPresses(key_presses)
+    }
+
+//    fn cursor_back(&mut self, back: u16) ->  &mut Self {
+//        let arrows = Vec::new();
+//
+//        match self {
+//            MacroOutput::KeyPresses(keys) => {
+//                for 0..back {
+//                    arrows.push(KeyPress::not_shifted(NonModifier::LeftArrow));
+//                }
+//            }
+//        }
+//
+//        self
+//    }
+}
+
+impl fmt::Display for MacroOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut shifted = false;
+        let mut string: String = String::new();
+
+        match self {
+            MacroOutput::KeyPresses(keys) => {
+                for k in keys.iter() {
+                    if !shifted && k.shifted {
+                        shifted = true;
+                        string.push_str(format!("{{-{}}}", Modifier::LeftShift).as_str());
+                    }
+
+                    if shifted && !k.shifted {
+                        shifted = false;
+                        string.push_str(format!("{{+{}}}", Modifier::LeftShift).as_str());
+                    }
+
+                    string.push_str(format!("{{{}}}", k.key).to_lowercase().as_str());
+                }
+            }
+        }
+
+        if shifted {
+            string.push_str(format!("{{+{}}}", Modifier::LeftShift).as_str());
+        }
+
+        write!(f, "{}", string)
+    }
+}
+
+fn char_to_key(c: &char) -> NonModifier {
+    use self::NonModifier::*;
+
+    match c {
+        '=' | '+' => Equals,
+        '1' | '!' => One,
+        '2' | '@' => Two,
+        '3' | '#' => Three,
+        '4' | '$' => Four,
+        '5' | '%' => Five,
+        '6' | '^' => Six,
+        '7' | '&' => Seven,
+        '8' | '*' => Eight,
+        '9' | '(' => Nine,
+        '-' | '_' => Hyphen,
+        'q' | 'Q' => Q,
+        'w' | 'W' => W,
+        'e' | 'E' => E,
+        'r' | 'R' => R,
+        't' | 'T' => T,
+        'y' | 'Y' => Y,
+        'u' | 'U' => U,
+        'i' | 'I' => I,
+        'o' | 'O' => O,
+        'p' | 'P' => P,
+        '\\' | '|' => BackSlash,
+        '\t' => Tab,
+        'a' | 'A' => A,
+        's' | 'S' => S,
+        'd' | 'D' => D,
+        'f' | 'F' => F,
+        'g' | 'G' => G,
+        'h' | 'H' => H,
+        'j' | 'J' => J,
+        'k' | 'K' => K,
+        'l' | 'L' => L,
+        ';' | ':' => SemiColon,
+        '\'' | '"' => Quote,
+        'z' | 'Z' => Z,
+        'x' | 'X' => X,
+        'c' | 'C' => C,
+        'v' | 'V' => V,
+        'b' | 'B' => B,
+        'n' | 'N' => N,
+        'm' | 'M' => M,
+        ',' | '<' => Comma,
+        '.' | '>' => FullStop,
+        '/' | '?' => ForwardSlash,
+        '[' | '{' => OpenBracket,
+        ']' | '}' => CloseBracket,
+        '\n' => Enter,
+        ' ' => Space,
+        c => panic!("Oh No".to_owned() + format!("{}", c).as_str()),
+    }
+}
+
+fn requires_shift(c: &char) -> bool {
+    let shifted_symbols = [
+        '+', '!', '@', '#', '$', '%', '^', '&', '*', '(', '_', '|', '"', '<', '>', '?', '{', '}',
+    ];
+
+    c.is_ascii_uppercase() || shifted_symbols.contains(c)
+}

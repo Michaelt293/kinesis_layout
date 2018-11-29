@@ -1,0 +1,11 @@
+[package]
+name = "kinesis_layout"
+version = "0.1.0"
+authors = ["Michael Thomas <Michaelt293@gmail.com>"]
+
+[dependencies]
+
+[[bin]]
+bench = false
+path = "src/main.rs"
+name = "kinesis"
