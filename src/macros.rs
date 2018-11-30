@@ -5,34 +5,34 @@ use keys::*;
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub enum MacroOutput {
     KeyPresses(Vec<KeyPress>),
-    //    Shortcut(Shortcut),
+    Shortcut(Shortcut),
 }
 
 impl MacroOutput {
-    pub fn from_string(s:&str)-> MacroOutput {
+    pub fn from_string(s: &str) -> MacroOutput {
         let mut key_presses = Vec::new();
         for c in s.chars() {
-            let char_to_key = char_to_key(&c);
-            let requires_shift = requires_shift(&c);
+            let char_to_key = char_to_key(c);
+            let requires_shift = requires_shift(c);
             let key_press = KeyPress::new(requires_shift, char_to_key);
             key_presses.push(key_press)
         }
         MacroOutput::KeyPresses(key_presses)
     }
 
-//    fn cursor_back(&mut self, back: u16) ->  &mut Self {
-//        let arrows = Vec::new();
-//
-//        match self {
-//            MacroOutput::KeyPresses(keys) => {
-//                for 0..back {
-//                    arrows.push(KeyPress::not_shifted(NonModifier::LeftArrow));
-//                }
-//            }
-//        }
-//
-//        self
-//    }
+    //    fn cursor_back(&mut self, back: u16) ->  &mut Self {
+    //        let arrows = Vec::new();
+    //
+    //        match self {
+    //            MacroOutput::KeyPresses(keys) => {
+    //                for 0..back {
+    //                    arrows.push(KeyPress::not_shifted(NonModifier::LeftArrow));
+    //                }
+    //            }
+    //        }
+    //
+    //        self
+    //    }
 }
 
 impl fmt::Display for MacroOutput {
@@ -55,18 +55,35 @@ impl fmt::Display for MacroOutput {
 
                     string.push_str(format!("{{{}}}", k.key).to_lowercase().as_str());
                 }
-            }
-        }
 
-        if shifted {
-            string.push_str(format!("{{+{}}}", Modifier::LeftShift).as_str());
+                if shifted {
+                    string.push_str(format!("{{+{}}}", Modifier::LeftShift).as_str());
+                }
+            }
+
+            MacroOutput::Shortcut(shortcut) => {
+                let keypad = &shortcut.keypad;
+                string.push_str(
+                    format!(
+                        "{{{}}}",
+                        KeyLayer::new(
+                            keypad.clone(),
+                            Key::NonModifier(shortcut.non_modifier.clone())
+                        )
+                    ).as_str(),
+                );
+                for key in shortcut.modifiers.iter() {
+                    string.insert_str(0, format!("{{-{}}}", key).as_str());
+                    string.push_str(format!("{{+{}}}", key).as_str());
+                }
+            }
         }
 
         write!(f, "{}", string)
     }
 }
 
-fn char_to_key(c: &char) -> NonModifier {
+fn char_to_key(c: char) -> NonModifier {
     use self::NonModifier::*;
 
     match c {
@@ -122,10 +139,10 @@ fn char_to_key(c: &char) -> NonModifier {
     }
 }
 
-fn requires_shift(c: &char) -> bool {
+fn requires_shift(c: char) -> bool {
     let shifted_symbols = [
         '+', '!', '@', '#', '$', '%', '^', '&', '*', '(', '_', '|', '"', '<', '>', '?', '{', '}',
     ];
 
-    c.is_ascii_uppercase() || shifted_symbols.contains(c)
+    c.is_ascii_uppercase() || shifted_symbols.contains(&c)
 }

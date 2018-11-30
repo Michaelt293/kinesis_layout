@@ -24,14 +24,14 @@ impl fmt::Display for Modifier {
         use self::Modifier::*;
 
         match self {
-            LeftShift => write!(f, "{}", "lshift"),
-            RightShift => write!(f, "{}", "rshift"),
-            LeftWindowsCommand => write!(f, "{}", "lwin"),
-            RightWindowsCommand => write!(f, "{}", "rwin"),
-            LeftControl => write!(f, "{}", "lctrl"),
-            RightControl => write!(f, "{}", "rctrl"),
-            LeftAlt => write!(f, "{}", "lalt"),
-            RightAlt => write!(f, "{}", "ralt"),
+            LeftShift => write!(f, "lshift"),
+            RightShift => write!(f, "rshift"),
+            LeftWindowsCommand => write!(f, "lwin"),
+            RightWindowsCommand => write!(f, "rwin"),
+            LeftControl => write!(f, "lctrl"),
+            RightControl => write!(f, "rctrl"),
+            LeftAlt => write!(f, "lalt"),
+            RightAlt => write!(f, "ralt"),
         }
     }
 }
@@ -118,41 +118,41 @@ impl fmt::Display for NonModifier {
         use keys::NonModifier::*;
 
         match self {
-            One => write!(f, "{}", 1),
-            Two => write!(f, "{}", 2),
-            Three => write!(f, "{}", 3),
-            Four => write!(f, "{}", 4),
-            Five => write!(f, "{}", 5),
-            Six => write!(f, "{}", 6),
-            Seven => write!(f, "{}", 7),
-            Eight => write!(f, "{}", 8),
-            Nine => write!(f, "{}", 9),
-            Zero => write!(f, "{}", 0),
-            Backtick => write!(f, "{}", '`'),
-            Hyphen => write!(f, "{}", "hyphen"),
-            Equals => write!(f, "{}", '='),
-            BackSlash => write!(f, "{}", '\\'),
-            SemiColon => write!(f, "{}", ';'),
-            Quote => write!(f, "{}", '\''),
-            Comma => write!(f, "{}", ','),
-            FullStop => write!(f, "{}", '.'),
-            ForwardSlash => write!(f, "{}", '/'),
-            OpenBracket => write!(f, "{}", "obrack"),
-            CloseBracket => write!(f, "{}", "cbrack"),
-            Enter => write!(f, "{}", "enter"),
-            PageUp => write!(f, "{}", "pup"),
-            Tab => write!(f, "{}", "tab"),
-            PageDown => write!(f, "{}", "pdown"),
-            Space => write!(f, "{}", "space"),
-            LeftArrow => write!(f, "{}", "left"),
-            Delete => write!(f, "{}", "delete"),
-            RightArrow => write!(f, "{}", "right"),
-            Backspace => write!(f, "{}", "bspace"),
-            UpArrow => write!(f, "{}", "up"),
-            Insert => write!(f, "{}", "insert"),
-            DownArrow => write!(f, "{}", "down"),
-            Home => write!(f, "{}", "home"),
-            End => write!(f, "{}", "end"),
+            One => write!(f, "1"),
+            Two => write!(f, "2"),
+            Three => write!(f, "3"),
+            Four => write!(f, "4"),
+            Five => write!(f, "5"),
+            Six => write!(f, "6"),
+            Seven => write!(f, "7"),
+            Eight => write!(f, "8"),
+            Nine => write!(f, "9"),
+            Zero => write!(f, "0"),
+            Backtick => write!(f, "`"),
+            Hyphen => write!(f, "hyphen"),
+            Equals => write!(f, "="),
+            BackSlash => write!(f, "\\"),
+            SemiColon => write!(f, ";"),
+            Quote => write!(f, "\'"),
+            Comma => write!(f, ","),
+            FullStop => write!(f, "."),
+            ForwardSlash => write!(f, "/"),
+            OpenBracket => write!(f, "obrack"),
+            CloseBracket => write!(f, "cbrack"),
+            Enter => write!(f, "enter"),
+            PageUp => write!(f, "pup"),
+            Tab => write!(f, "tab"),
+            PageDown => write!(f, "pdown"),
+            Space => write!(f, "space"),
+            LeftArrow => write!(f, "left"),
+            Delete => write!(f, "delete"),
+            RightArrow => write!(f, "right"),
+            Backspace => write!(f, "bspace"),
+            UpArrow => write!(f, "up"),
+            Insert => write!(f, "insert"),
+            DownArrow => write!(f, "down"),
+            Home => write!(f, "home"),
+            End => write!(f, "end"),
             key => write!(f, "{}", format!("{:?}", key)),
         }
     }
@@ -180,7 +180,7 @@ pub struct KeyLayer {
 }
 
 impl KeyLayer {
-    fn new(keypad_state: Keypad, key: Key) -> Self {
+    pub fn new(keypad_state: Keypad, key: Key) -> Self {
         KeyLayer { keypad_state, key }
     }
 
@@ -199,24 +199,24 @@ impl fmt::Display for KeyLayer {
             write!(f, "{}", self.key)
         } else {
             match self.key {
-                Key::NonModifier(NonModifier::Space) => write!(f, "kp{}", 0),
-                Key::NonModifier(NonModifier::M) => write!(f, "kp{}", 1),
-                Key::NonModifier(NonModifier::Comma) => write!(f, "kp{}", 2),
-                Key::NonModifier(NonModifier::FullStop) => write!(f, "kp{}", 3),
-                Key::NonModifier(NonModifier::J) => write!(f, "kp{}", 4),
-                Key::NonModifier(NonModifier::K) => write!(f, "kp{}", 5),
-                Key::NonModifier(NonModifier::L) => write!(f, "kp{}", 6),
-                Key::NonModifier(NonModifier::U) => write!(f, "kp{}", 7),
-                Key::NonModifier(NonModifier::I) => write!(f, "kp{}", 8),
-                Key::NonModifier(NonModifier::O) => write!(f, "kp{}", 9),
-                Key::NonModifier(NonModifier::Seven) => write!(f, "{}", "numlk"),
-                Key::NonModifier(NonModifier::CloseBracket) => write!(f, "kp{}", "."),
-                Key::NonModifier(NonModifier::Eight) => write!(f, "kp{}", "="),
-                Key::NonModifier(NonModifier::Nine) => write!(f, "kp{}", "div"),
-                Key::NonModifier(NonModifier::SemiColon) => write!(f, "kp{}", "plus"),
-                Key::NonModifier(NonModifier::Zero) => write!(f, "kp{}", "mult"),
-                Key::NonModifier(NonModifier::P) => write!(f, "kp{}", "min"),
-                Key::NonModifier(NonModifier::ForwardSlash) => write!(f, "kp{}", "enter1"),
+                Key::NonModifier(NonModifier::Space) => write!(f, "kp0"),
+                Key::NonModifier(NonModifier::M) => write!(f, "kp1"),
+                Key::NonModifier(NonModifier::Comma) => write!(f, "kp2"),
+                Key::NonModifier(NonModifier::FullStop) => write!(f, "kp3"),
+                Key::NonModifier(NonModifier::J) => write!(f, "kp4"),
+                Key::NonModifier(NonModifier::K) => write!(f, "kp5"),
+                Key::NonModifier(NonModifier::L) => write!(f, "kp6"),
+                Key::NonModifier(NonModifier::U) => write!(f, "kp7"),
+                Key::NonModifier(NonModifier::I) => write!(f, "kp8"),
+                Key::NonModifier(NonModifier::O) => write!(f, "kp9"),
+                Key::NonModifier(NonModifier::Seven) => write!(f, "numlk"),
+                Key::NonModifier(NonModifier::CloseBracket) => write!(f, "k."),
+                Key::NonModifier(NonModifier::Eight) => write!(f, "k="),
+                Key::NonModifier(NonModifier::Nine) => write!(f, "kpdiv"),
+                Key::NonModifier(NonModifier::SemiColon) => write!(f, "kpplus"),
+                Key::NonModifier(NonModifier::Zero) => write!(f, "kpmult"),
+                Key::NonModifier(NonModifier::P) => write!(f, "kpmin"),
+                Key::NonModifier(NonModifier::ForwardSlash) => write!(f, "kpenter1"),
                 Key::NonModifier(ref key) => write!(f, "kp-{}", key),
                 Key::Modifier(ref key) => write!(f, "kp-{}", key),
             }
@@ -246,9 +246,9 @@ impl KeyPress {
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub struct Shortcut {
-    keypad: Keypad,
-    modifiers: BTreeSet<Modifier>,
-    non_modifier: NonModifier,
+    pub keypad: Keypad,
+    pub modifiers: BTreeSet<Modifier>,
+    pub non_modifier: NonModifier,
 }
 
 impl Shortcut {

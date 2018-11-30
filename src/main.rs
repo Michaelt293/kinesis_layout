@@ -1,17 +1,18 @@
 #[macro_use]
+extern crate maplit;
+
 extern crate kinesis_layout;
 
-use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
 
 use kinesis_layout::configure::*;
 use kinesis_layout::keys::*;
-use kinesis_layout::layouts::*;
+use kinesis_layout::layout::*;
 use kinesis_layout::macros::*;
 
-
 fn main() {
+    use Modifier::*;
     use NonModifier::*;
 
     let layout: Layout = Configure::new()
@@ -20,8 +21,11 @@ fn main() {
         .remap_keypad(Key::NonModifier(Enter), Key::NonModifier(Space))
         .dead_key(Key::NonModifier(Backtick))
         .with_macro(
-            Shortcut::keypad_on(BTreeSet::new(), C),
-            MacroOutput::from_string("www.test.com, THANKS"),
+            Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, T),
+            MacroOutput::from_string("www.test.com\nTHANKS"),
+        ).with_macro(
+            Shortcut::keypad_on(btreeset!{LeftAlt}, V),
+            MacroOutput::Shortcut(Shortcut::keypad_on(btreeset!{RightShift, LeftAlt}, T)),
         ).make();
 
     let file_name: &str = "layout1";
