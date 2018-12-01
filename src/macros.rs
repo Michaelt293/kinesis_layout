@@ -11,28 +11,37 @@ pub enum MacroOutput {
 impl MacroOutput {
     pub fn from_string(s: &str) -> MacroOutput {
         let mut key_presses = Vec::new();
+
         for c in s.chars() {
             let char_to_key = char_to_key(c);
             let requires_shift = requires_shift(c);
             let key_press = KeyPress::new(requires_shift, char_to_key);
             key_presses.push(key_press)
         }
+
         MacroOutput::KeyPresses(key_presses)
     }
 
-    //    fn cursor_back(&mut self, back: u16) ->  &mut Self {
-    //        let arrows = Vec::new();
-    //
-    //        match self {
-    //            MacroOutput::KeyPresses(keys) => {
-    //                for 0..back {
-    //                    arrows.push(KeyPress::not_shifted(NonModifier::LeftArrow));
-    //                }
-    //            }
-    //        }
-    //
-    //        self
-    //    }
+    pub fn from_string_move_cursor(s: &str, back: u16) -> MacroOutput {
+        let mut arrows = Vec::new();
+
+        for _ in 0..back {
+            arrows.push(KeyPress::not_shifted(NonModifier::LeftArrow));
+        }
+
+        let mut key_presses = Vec::new();
+
+        for c in s.chars() {
+            let char_to_key = char_to_key(c);
+            let requires_shift = requires_shift(c);
+            let key_press = KeyPress::new(requires_shift, char_to_key);
+            key_presses.push(key_press)
+        }
+
+        key_presses.extend(arrows);
+
+        MacroOutput::KeyPresses(key_presses)
+    }
 }
 
 impl fmt::Display for MacroOutput {

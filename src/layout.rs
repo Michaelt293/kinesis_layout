@@ -24,7 +24,7 @@ impl fmt::Display for Layout {
 
         let mut mappings: Vec<String> = Vec::new();
 
-        for (k, v) in self.remappings.iter() {
+        for (k, v) in remappings.iter() {
             let value = match v {
                 None => "null".to_string(),
                 Some(key) => format!("{}", key),

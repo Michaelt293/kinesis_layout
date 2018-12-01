@@ -22,7 +22,7 @@ fn main() {
         .dead_key(Key::NonModifier(Backtick))
         .with_macro(
             Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, T),
-            MacroOutput::from_string("www.test.com\nTHANKS"),
+            MacroOutput::from_string_move_cursor("www.test.com\nTHANKS", 6),
         ).with_macro(
             Shortcut::keypad_on(btreeset!{LeftAlt}, V),
             MacroOutput::Shortcut(Shortcut::keypad_on(btreeset!{RightShift, LeftAlt}, T)),
