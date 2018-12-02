@@ -5,16 +5,10 @@ use std::fmt;
 use keys::*;
 use macros::*;
 
-#[derive(PartialEq, Eq, Clone, Debug, Default)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Layout {
     pub remappings: HashMap<KeyLayer, Option<KeyLayer>>,
     pub macros: HashMap<Shortcut, Vec<MacroOutput>>,
-}
-
-impl Layout {
-    pub fn new() -> Layout {
-        Default::default()
-    }
 }
 
 impl fmt::Display for Layout {

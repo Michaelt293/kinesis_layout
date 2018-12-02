@@ -23,9 +23,12 @@ fn main() {
         .with_macro(
             Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, T),
             MacroOutput::from_string_move_cursor("www.test.com\nTHANKS", 6),
-        ).with_macro(
+        ).with_macros(
             Shortcut::keypad_on(btreeset!{LeftAlt}, V),
-            MacroOutput::Shortcut(Shortcut::keypad_on(btreeset!{RightShift, LeftAlt}, T)),
+            vec![
+                MacroOutput::shortcut_keypad_on(btreeset!{RightShift, LeftAlt}, T),
+                MacroOutput::from_string("Hi"),
+            ],
         ).make();
 
     let file_name: &str = "layout1";

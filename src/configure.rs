@@ -71,6 +71,11 @@ impl Configure {
         self
     }
 
+    pub fn with_macros(&mut self, shortcut: Shortcut, macro_outputs: Vec<MacroOutput>) -> &mut Configure {
+        self.macros.insert(shortcut, macro_outputs);
+        self
+    }
+
     pub fn make(&self) -> Layout {
         Layout {
             remappings: self.remappings.clone(),

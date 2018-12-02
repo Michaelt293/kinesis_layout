@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::fmt;
 
 use keys::*;
@@ -41,6 +42,20 @@ impl MacroOutput {
         key_presses.extend(arrows);
 
         MacroOutput::KeyPresses(key_presses)
+    }
+
+    pub fn shortcut_keypad_off(
+        modifiers: BTreeSet<Modifier>,
+        non_modifiers: NonModifier,
+    ) -> MacroOutput {
+        MacroOutput::Shortcut(Shortcut::keypad_off(modifiers, non_modifiers))
+    }
+
+    pub fn shortcut_keypad_on(
+        modifiers: BTreeSet<Modifier>,
+        non_modifiers: NonModifier,
+    ) -> MacroOutput {
+        MacroOutput::Shortcut(Shortcut::keypad_on(modifiers, non_modifiers))
     }
 }
 
