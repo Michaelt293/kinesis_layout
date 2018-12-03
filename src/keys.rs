@@ -1,13 +1,13 @@
 use std::collections::BTreeSet;
 use std::fmt;
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum Keypad {
     Off,
     On,
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum Modifier {
     LeftShift,
     RightShift,
@@ -36,7 +36,7 @@ impl fmt::Display for Modifier {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum NonModifier {
     F1,
     F2,
@@ -274,21 +274,14 @@ impl fmt::Display for Shortcut {
         let mut string: String = String::new();
 
         for m in self.modifiers.iter() {
-            string.push_str(
-                format!(
-                    "{{{}}}",
-                    KeyLayer::new(self.keypad.clone(), Key::Modifier(m.clone()))
-                ).as_str(),
-            );
+            string
+                .push_str(format!("{{{}}}", KeyLayer::new(self.keypad, Key::Modifier(*m))).as_str());
         }
 
         string.push_str(
             format!(
                 "{{{}}}",
-                KeyLayer::new(
-                    self.keypad.clone(),
-                    Key::NonModifier(self.non_modifier.clone())
-                )
+                KeyLayer::new(self.keypad, Key::NonModifier(self.non_modifier))
             ).as_str(),
         );
 

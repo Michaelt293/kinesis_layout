@@ -1,6 +1,7 @@
+use std::collections::BTreeSet;
 use std::collections::HashMap;
 
-use keys::{Key, KeyLayer, Shortcut};
+use keys::{Key, KeyLayer, Modifier, NonModifier, Shortcut};
 use layout::Layout;
 use macros::MacroOutput;
 
@@ -68,6 +69,45 @@ impl Configure {
 
     pub fn with_macro(&mut self, shortcut: Shortcut, macro_output: MacroOutput) -> &mut Configure {
         self.macros.insert(shortcut, macro_output);
+        self
+    }
+
+    pub fn invert_key(&mut self, key: NonModifier) -> &mut Configure {
+        self.macros.insert(
+            Shortcut::keypad_off(BTreeSet::new(), key),
+            MacroOutput::shortcut(Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key)),
+        );
+        self.macros.insert(
+            Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key),
+            MacroOutput::shortcut(Shortcut::keypad_off(BTreeSet::new(), key)),
+        );
+        self
+    }
+
+    pub fn invert_keypad_key(&mut self, key: NonModifier) -> &mut Configure {
+        self.macros.insert(
+            Shortcut::keypad_on(BTreeSet::new(), key),
+            MacroOutput::shortcut(Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key)),
+        );
+        self.macros.insert(
+            Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key),
+            MacroOutput::shortcut(Shortcut::keypad_on(BTreeSet::new(), key)),
+        );
+        self
+    }
+
+    pub fn invert_numbers(&mut self) -> &mut Configure {
+        use self::NonModifier::*;
+
+        self.invert_key(One);
+        self.invert_key(Two);
+        self.invert_key(Three);
+        self.invert_key(Four);
+        self.invert_key(Five);
+        self.invert_key(Six);
+        self.invert_key(Seven);
+        self.invert_key(Eight);
+        self.invert_key(Nine);
         self
     }
 

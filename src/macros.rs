@@ -60,8 +60,8 @@ impl fmt::Display for MacroOutput {
                         format!(
                             "{{{}}}",
                             KeyLayer::new(
-                                keypad.clone(),
-                                Key::NonModifier(shortcut.non_modifier.clone())
+                                *keypad,
+                                Key::NonModifier(shortcut.non_modifier)
                             )
                         ).as_str(),
                     );

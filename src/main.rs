@@ -20,6 +20,7 @@ fn main() {
         .remap(Key::NonModifier(A), Key::NonModifier(LeftArrow))
         .remap_keypad(Key::NonModifier(Enter), Key::NonModifier(Space))
         .dead_key(Key::NonModifier(Backtick))
+        .invert_numbers()
         .with_macro(
             Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, T),
             MacroOutput::from_string_move_cursor("www.test.com\nTHANKS", 6),
