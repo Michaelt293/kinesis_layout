@@ -1,3 +1,4 @@
+extern crate either;
 #[macro_use]
 extern crate maplit;
 

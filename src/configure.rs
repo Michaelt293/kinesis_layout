@@ -7,7 +7,7 @@ use macros::MacroOutput;
 #[derive(PartialEq, Eq, Clone, Debug, Default)]
 pub struct Configure {
     remappings: HashMap<KeyLayer, Option<KeyLayer>>,
-    macros: HashMap<Shortcut, Vec<MacroOutput>>,
+    macros: HashMap<Shortcut, MacroOutput>,
 }
 
 impl Configure {
@@ -67,12 +67,7 @@ impl Configure {
     }
 
     pub fn with_macro(&mut self, shortcut: Shortcut, macro_output: MacroOutput) -> &mut Configure {
-        self.macros.insert(shortcut, vec![macro_output]);
-        self
-    }
-
-    pub fn with_macros(&mut self, shortcut: Shortcut, macro_outputs: Vec<MacroOutput>) -> &mut Configure {
-        self.macros.insert(shortcut, macro_outputs);
+        self.macros.insert(shortcut, macro_output);
         self
     }
 

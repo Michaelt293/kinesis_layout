@@ -8,7 +8,7 @@ use macros::*;
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Layout {
     pub remappings: HashMap<KeyLayer, Option<KeyLayer>>,
-    pub macros: HashMap<Shortcut, Vec<MacroOutput>>,
+    pub macros: HashMap<Shortcut, MacroOutput>,
 }
 
 impl fmt::Display for Layout {
@@ -28,12 +28,7 @@ impl fmt::Display for Layout {
         }
 
         for (k, v) in self.macros.iter() {
-            let mut value = String::new();
-            for m in v {
-                value.push_str(format!("{}", m).as_str())
-            }
-
-            mappings.push(format!("{}>{}", k, value).to_lowercase());
+            mappings.push(format!("{}>{}", k, v).to_lowercase());
         }
 
         write!(f, "{}", mappings.join("\n"))

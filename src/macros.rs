@@ -1,109 +1,132 @@
-use std::collections::BTreeSet;
 use std::fmt;
+
+use either::*;
 
 use keys::*;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
-pub enum MacroOutput {
-    KeyPresses(Vec<KeyPress>),
-    Shortcut(Shortcut),
-}
+pub struct MacroOutput(Vec<Either<Vec<KeyPress>, Shortcut>>);
 
 impl MacroOutput {
     pub fn from_string(s: &str) -> MacroOutput {
-        let mut key_presses = Vec::new();
-
-        for c in s.chars() {
-            let char_to_key = char_to_key(c);
-            let requires_shift = requires_shift(c);
-            let key_press = KeyPress::new(requires_shift, char_to_key);
-            key_presses.push(key_press)
-        }
-
-        MacroOutput::KeyPresses(key_presses)
+        MacroOutput(vec![Left(string_to_key_presses(s))])
     }
 
-    pub fn from_string_move_cursor(s: &str, back: u16) -> MacroOutput {
-        let mut arrows = Vec::new();
+    pub fn from_string_move_cursor(s: &str, back: usize) -> MacroOutput {
+        let mut key_presses = string_to_key_presses(s);
 
-        for _ in 0..back {
-            arrows.push(KeyPress::not_shifted(NonModifier::LeftArrow));
-        }
-
-        let mut key_presses = Vec::new();
-
-        for c in s.chars() {
-            let char_to_key = char_to_key(c);
-            let requires_shift = requires_shift(c);
-            let key_press = KeyPress::new(requires_shift, char_to_key);
-            key_presses.push(key_press)
-        }
-
+        let arrows = vec![KeyPress::not_shifted(NonModifier::LeftArrow); back];
         key_presses.extend(arrows);
 
-        MacroOutput::KeyPresses(key_presses)
+        MacroOutput(vec![Left(key_presses)])
     }
 
-    pub fn shortcut_keypad_off(
-        modifiers: BTreeSet<Modifier>,
-        non_modifiers: NonModifier,
-    ) -> MacroOutput {
-        MacroOutput::Shortcut(Shortcut::keypad_off(modifiers, non_modifiers))
-    }
-
-    pub fn shortcut_keypad_on(
-        modifiers: BTreeSet<Modifier>,
-        non_modifiers: NonModifier,
-    ) -> MacroOutput {
-        MacroOutput::Shortcut(Shortcut::keypad_on(modifiers, non_modifiers))
+    pub fn shortcut(shortcut: Shortcut) -> MacroOutput {
+        MacroOutput(vec![Right(shortcut)])
     }
 }
 
 impl fmt::Display for MacroOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut shifted = false;
         let mut string: String = String::new();
 
-        match self {
-            MacroOutput::KeyPresses(keys) => {
-                for k in keys.iter() {
-                    if !shifted && k.shifted {
-                        shifted = true;
-                        string.push_str(format!("{{-{}}}", Modifier::LeftShift).as_str());
+        for out in self.0.iter() {
+            match out {
+                Left(keys) => {
+                    let mut shifted = false;
+
+                    for k in keys.iter() {
+                        if !shifted && k.shifted {
+                            shifted = true;
+                            string.push_str(format!("{{-{}}}", Modifier::LeftShift).as_str());
+                        }
+
+                        if shifted && !k.shifted {
+                            shifted = false;
+                            string.push_str(format!("{{+{}}}", Modifier::LeftShift).as_str());
+                        }
+
+                        string.push_str(format!("{{{}}}", k.key).to_lowercase().as_str());
                     }
 
-                    if shifted && !k.shifted {
-                        shifted = false;
+                    if shifted {
                         string.push_str(format!("{{+{}}}", Modifier::LeftShift).as_str());
                     }
-
-                    string.push_str(format!("{{{}}}", k.key).to_lowercase().as_str());
                 }
 
-                if shifted {
-                    string.push_str(format!("{{+{}}}", Modifier::LeftShift).as_str());
-                }
-            }
-
-            MacroOutput::Shortcut(shortcut) => {
-                let keypad = &shortcut.keypad;
-                string.push_str(
-                    format!(
-                        "{{{}}}",
-                        KeyLayer::new(
-                            keypad.clone(),
-                            Key::NonModifier(shortcut.non_modifier.clone())
-                        )
-                    ).as_str(),
-                );
-                for key in shortcut.modifiers.iter() {
-                    string.insert_str(0, format!("{{-{}}}", key).as_str());
-                    string.push_str(format!("{{+{}}}", key).as_str());
+                Right(shortcut) => {
+                    let keypad = &shortcut.keypad;
+                    string.push_str(
+                        format!(
+                            "{{{}}}",
+                            KeyLayer::new(
+                                keypad.clone(),
+                                Key::NonModifier(shortcut.non_modifier.clone())
+                            )
+                        ).as_str(),
+                    );
+                    for key in shortcut.modifiers.iter() {
+                        string.insert_str(0, format!("{{-{}}}", key).as_str());
+                        string.push_str(format!("{{+{}}}", key).as_str());
+                    }
                 }
             }
         }
 
         write!(f, "{}", string)
+    }
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug, Default)]
+pub struct MacroBuilder(Vec<Either<Vec<KeyPress>, Shortcut>>);
+
+impl MacroBuilder {
+    pub fn new() -> MacroBuilder {
+        Default::default()
+    }
+
+    pub fn with_string(&mut self, s: &str) -> &mut MacroBuilder {
+        self.0.push(Left(string_to_key_presses(s)));
+        self
+    }
+
+    pub fn with_shortcut(&mut self, shortcut: Shortcut) -> &mut MacroBuilder {
+        self.0.push(Right(shortcut));
+        self
+    }
+
+    pub fn cursor_up(&mut self, up: usize) -> &mut MacroBuilder {
+        self.0
+            .push(Left(vec![KeyPress::not_shifted(NonModifier::UpArrow); up]));
+        self
+    }
+
+    pub fn cursor_down(&mut self, down: usize) -> &mut MacroBuilder {
+        self.0.push(Left(vec![
+            KeyPress::not_shifted(NonModifier::DownArrow);
+            down
+        ]));
+        self
+    }
+
+    pub fn cursor_left(&mut self, left: usize) -> &mut MacroBuilder {
+        self.0.push(Left(vec![
+            KeyPress::not_shifted(NonModifier::LeftArrow);
+            left
+        ]));
+        self
+    }
+
+    pub fn cursor_right(&mut self, right: usize) -> &mut MacroBuilder {
+        self.0.push(Left(vec![
+            KeyPress::not_shifted(NonModifier::RightArrow);
+            right
+        ]));
+        self
+    }
+
+    pub fn make(&self) -> MacroOutput {
+        MacroOutput(self.0.clone())
     }
 }
 
@@ -169,4 +192,10 @@ fn requires_shift(c: char) -> bool {
     ];
 
     c.is_ascii_uppercase() || shifted_symbols.contains(&c)
+}
+
+fn string_to_key_presses(s: &str) -> Vec<KeyPress> {
+    s.chars()
+        .map(|c| KeyPress::new(requires_shift(c), char_to_key(c)))
+        .collect()
 }
