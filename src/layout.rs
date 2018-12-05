@@ -13,7 +13,7 @@ pub struct Layout {
 
 impl fmt::Display for Layout {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut remappings: Vec<(&KeyLayer, &Option<KeyLayer>)> = self.remappings.iter().collect();
+        let mut remappings: Vec<_> = self.remappings.iter().collect();
         remappings.sort_unstable();
 
         let mut mappings: Vec<String> = Vec::new();

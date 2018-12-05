@@ -274,8 +274,9 @@ impl fmt::Display for Shortcut {
         let mut string: String = String::new();
 
         for m in self.modifiers.iter() {
-            string
-                .push_str(format!("{{{}}}", KeyLayer::new(self.keypad, Key::Modifier(*m))).as_str());
+            string.push_str(
+                format!("{{{}}}", KeyLayer::new(self.keypad, Key::Modifier(*m))).as_str(),
+            );
         }
 
         string.push_str(
