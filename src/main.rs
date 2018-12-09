@@ -23,13 +23,13 @@ fn main() {
         .invert_numbers()
         .with_macro(
             Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, T),
-            MacroBuilder::new()
-                .with_string("www.test.com\nTHANKS")
+            MacroBuilder::from_string("www.test.com\nTHANKS")
                 .cursor_left(6)
                 .make(),
         ).with_macro(
             Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, I),
             MacroBuilder::new()
+                .with_command(Command::LineEnd)
                 .with_string("if  {\n")
                 .cursor_down(1)
                 .with_string(" else  {\n")

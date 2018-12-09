@@ -85,11 +85,15 @@ impl Configure {
     pub fn invert_key(&mut self, key: NonModifier) -> &mut Configure {
         self.macros.insert(
             Shortcut::keypad_off(BTreeSet::new(), key),
-            MacroOutputTemp::shortcut(Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key)),
+            MacroBuilder::new()
+                .with_shortcut(Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key))
+                .make(),
         );
         self.macros.insert(
             Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key),
-            MacroOutputTemp::shortcut(Shortcut::keypad_off(BTreeSet::new(), key)),
+            MacroBuilder::new()
+                .with_shortcut(Shortcut::keypad_off(BTreeSet::new(), key))
+                .make(),
         );
         self
     }
@@ -97,11 +101,15 @@ impl Configure {
     pub fn invert_keypad_key(&mut self, key: NonModifier) -> &mut Configure {
         self.macros.insert(
             Shortcut::keypad_on(BTreeSet::new(), key),
-            MacroOutputTemp::shortcut(Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key)),
+            MacroBuilder::new()
+                .with_shortcut(Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key))
+                .make(),
         );
         self.macros.insert(
             Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key),
-            MacroOutputTemp::shortcut(Shortcut::keypad_on(BTreeSet::new(), key)),
+            MacroBuilder::new()
+                .with_shortcut(Shortcut::keypad_on(BTreeSet::new(), key))
+                .make(),
         );
         self
     }
@@ -127,7 +135,7 @@ impl Configure {
             macros: self
                 .macros
                 .iter()
-                .map(|(k, v)| (k.clone(), v.to_macro_output(&self.system)))
+                .map(|(k, v)| (k.clone(), v.to_macro_output(self.system)))
                 .collect(),
         }
     }

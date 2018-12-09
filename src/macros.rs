@@ -36,17 +36,22 @@ impl fmt::Display for MacroOutput {
                 }
 
                 Right(shortcut) => {
-                    let keypad = &shortcut.keypad;
-                    string.push_str(
+                    let mut temp_string = String::new();
+                    let keypad = shortcut.keypad;
+
+                    temp_string.push_str(
                         format!(
                             "{{{}}}",
-                            KeyLayer::new(*keypad, Key::NonModifier(shortcut.non_modifier))
+                            KeyLayer::new(keypad, Key::NonModifier(shortcut.non_modifier))
                         ).as_str(),
                     );
+
                     for key in shortcut.modifiers.iter() {
-                        string.insert_str(0, format!("{{-{}}}", key).as_str());
-                        string.push_str(format!("{{+{}}}", key).as_str());
+                        temp_string.insert_str(0, format!("{{-{}}}", key).as_str());
+                        temp_string.push_str(format!("{{+{}}}", key).as_str());
                     }
+
+                    string.push_str(temp_string.as_str());
                 }
             }
         }
@@ -61,6 +66,10 @@ pub struct MacroBuilder(Vec<MacroComponent>);
 impl MacroBuilder {
     pub fn new() -> MacroBuilder {
         Default::default()
+    }
+
+    pub fn from_string(s: &str) -> MacroBuilder {
+        MacroBuilder(vec![MacroComponent::KeyPresses(string_to_key_presses(s))])
     }
 
     pub fn with_string(&mut self, s: &str) -> &mut MacroBuilder {
@@ -201,8 +210,8 @@ pub enum System {
 }
 
 impl System {
-    fn is_mac(&self) -> bool {
-        self == &System::Mac
+    fn is_mac(self) -> bool {
+        self == System::Mac
     }
 }
 
@@ -225,7 +234,7 @@ pub enum Command {
 }
 
 impl Command {
-    fn to_shortcut(&self, system: &System) -> Shortcut {
+    fn to_shortcut(self, system: System) -> Shortcut {
         use keys::Modifier::*;
         use keys::NonModifier::*;
 
@@ -285,28 +294,7 @@ impl Command {
 pub struct MacroOutputTemp(Vec<MacroComponent>);
 
 impl MacroOutputTemp {
-    pub fn from_string(s: &str) -> Self {
-        MacroOutputTemp(vec![MacroComponent::KeyPresses(string_to_key_presses(s))])
-    }
-
-    pub fn from_string_move_cursor(s: &str, back: usize) -> Self {
-        let mut key_presses = string_to_key_presses(s);
-
-        let arrows = vec![KeyPress::not_shifted(NonModifier::LeftArrow); back];
-        key_presses.extend(arrows);
-
-        MacroOutputTemp(vec![MacroComponent::KeyPresses(key_presses)])
-    }
-
-    pub fn shortcut(shortcut: Shortcut) -> Self {
-        MacroOutputTemp(vec![MacroComponent::Shortcut(shortcut)])
-    }
-
-    pub fn command(command: Command) -> Self {
-        MacroOutputTemp(vec![MacroComponent::Command(command)])
-    }
-
-    pub fn to_macro_output(&self, system: &System) -> MacroOutput {
+    pub fn to_macro_output(&self, system: System) -> MacroOutput {
         MacroOutput(self.0.iter().map(|x| x.to_either(system)).collect())
     }
 }
@@ -319,7 +307,7 @@ pub enum MacroComponent {
 }
 
 impl MacroComponent {
-    fn to_either(&self, system: &System) -> Either<Vec<KeyPress>, Shortcut> {
+    fn to_either(&self, system: System) -> Either<Vec<KeyPress>, Shortcut> {
         match self {
             MacroComponent::KeyPresses(presses) => Left(presses.clone()),
             MacroComponent::Shortcut(shortcut) => Right(shortcut.clone()),

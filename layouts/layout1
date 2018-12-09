@@ -36,5 +36,5 @@
 {rshift}{7}>{7}
 {rshift}{8}>{8}
 {rshift}{9}>{9}
-{rshift}{lalt}{i}>{-lwin}{i}{f}{space}{space}{-lshift}{obrack}{+lshift}{enter}{down}{space}{e}{l}{s}{e}{space}{space}{-lshift}{obrack}{+lshift}{enter}{up}{up}{up}{right}{+lwin}{left}{left}
+{rshift}{lalt}{i}>{end}{i}{f}{space}{space}{-lshift}{obrack}{+lshift}{enter}{down}{space}{e}{l}{s}{e}{space}{space}{-lshift}{obrack}{+lshift}{enter}{up}{up}{up}{-lwin}{right}{+lwin}{left}{left}
 {rshift}{lalt}{t}>{w}{w}{w}{.}{t}{e}{s}{t}{.}{c}{o}{m}{enter}{-lshift}{t}{h}{a}{n}{k}{s}{+lshift}{left}{left}{left}{left}{left}{left}
