@@ -7,25 +7,6 @@ use keys::*;
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub struct MacroOutput(Vec<Either<Vec<KeyPress>, Shortcut>>);
 
-impl MacroOutput {
-    pub fn from_string(s: &str) -> MacroOutput {
-        MacroOutput(vec![Left(string_to_key_presses(s))])
-    }
-
-    pub fn from_string_move_cursor(s: &str, back: usize) -> MacroOutput {
-        let mut key_presses = string_to_key_presses(s);
-
-        let arrows = vec![KeyPress::not_shifted(NonModifier::LeftArrow); back];
-        key_presses.extend(arrows);
-
-        MacroOutput(vec![Left(key_presses)])
-    }
-
-    pub fn shortcut(shortcut: Shortcut) -> MacroOutput {
-        MacroOutput(vec![Right(shortcut)])
-    }
-}
-
 impl fmt::Display for MacroOutput {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut string: String = String::new();
@@ -59,10 +40,7 @@ impl fmt::Display for MacroOutput {
                     string.push_str(
                         format!(
                             "{{{}}}",
-                            KeyLayer::new(
-                                *keypad,
-                                Key::NonModifier(shortcut.non_modifier)
-                            )
+                            KeyLayer::new(*keypad, Key::NonModifier(shortcut.non_modifier))
                         ).as_str(),
                     );
                     for key in shortcut.modifiers.iter() {
@@ -78,7 +56,7 @@ impl fmt::Display for MacroOutput {
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug, Default)]
-pub struct MacroBuilder(Vec<Either<Vec<KeyPress>, Shortcut>>);
+pub struct MacroBuilder(Vec<MacroComponent>);
 
 impl MacroBuilder {
     pub fn new() -> MacroBuilder {
@@ -86,47 +64,63 @@ impl MacroBuilder {
     }
 
     pub fn with_string(&mut self, s: &str) -> &mut MacroBuilder {
-        self.0.push(Left(string_to_key_presses(s)));
+        self.0
+            .push(MacroComponent::KeyPresses(string_to_key_presses(s)));
         self
     }
 
     pub fn with_shortcut(&mut self, shortcut: Shortcut) -> &mut MacroBuilder {
-        self.0.push(Right(shortcut));
+        self.0.push(MacroComponent::Shortcut(shortcut));
         self
     }
 
     pub fn cursor_up(&mut self, up: usize) -> &mut MacroBuilder {
-        self.0
-            .push(Left(vec![KeyPress::not_shifted(NonModifier::UpArrow); up]));
+        self.0.push(MacroComponent::KeyPresses(vec![
+            KeyPress::not_shifted(
+                NonModifier::UpArrow
+            );
+            up
+        ]));
         self
     }
 
     pub fn cursor_down(&mut self, down: usize) -> &mut MacroBuilder {
-        self.0.push(Left(vec![
-            KeyPress::not_shifted(NonModifier::DownArrow);
+        self.0.push(MacroComponent::KeyPresses(vec![
+            KeyPress::not_shifted(
+                NonModifier::DownArrow
+            );
             down
         ]));
         self
     }
 
     pub fn cursor_left(&mut self, left: usize) -> &mut MacroBuilder {
-        self.0.push(Left(vec![
-            KeyPress::not_shifted(NonModifier::LeftArrow);
+        self.0.push(MacroComponent::KeyPresses(vec![
+            KeyPress::not_shifted(
+                NonModifier::LeftArrow
+            );
             left
         ]));
         self
     }
 
     pub fn cursor_right(&mut self, right: usize) -> &mut MacroBuilder {
-        self.0.push(Left(vec![
-            KeyPress::not_shifted(NonModifier::RightArrow);
+        self.0.push(MacroComponent::KeyPresses(vec![
+            KeyPress::not_shifted(
+                NonModifier::RightArrow
+            );
             right
         ]));
         self
     }
 
-    pub fn make(&self) -> MacroOutput {
-        MacroOutput(self.0.clone())
+    pub fn with_command(&mut self, command: Command) -> &mut MacroBuilder {
+        self.0.push(MacroComponent::Command(command));
+        self
+    }
+
+    pub fn make(&self) -> MacroOutputTemp {
+        MacroOutputTemp(self.0.clone())
     }
 }
 
@@ -198,4 +192,138 @@ fn string_to_key_presses(s: &str) -> Vec<KeyPress> {
     s.chars()
         .map(|c| KeyPress::new(requires_shift(c), char_to_key(c)))
         .collect()
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
+pub enum System {
+    PC,
+    Mac,
+}
+
+impl System {
+    fn is_mac(&self) -> bool {
+        self == &System::Mac
+    }
+}
+
+impl Default for System {
+    fn default() -> Self {
+        System::PC
+    }
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
+pub enum Command {
+    Copy,
+    Paste,
+    Cut,
+    Undo,
+    JumpForward,
+    JumpBack,
+    LineEnd,
+    LineStart,
+}
+
+impl Command {
+    fn to_shortcut(&self, system: &System) -> Shortcut {
+        use keys::Modifier::*;
+        use keys::NonModifier::*;
+
+        match self {
+            Command::Copy if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{RightWindowsCommand}, C)
+            }
+
+            Command::Copy => Shortcut::keypad_off(btreeset!{LeftControl}, NonModifier::C),
+
+            Command::Paste if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{RightWindowsCommand}, V)
+            }
+
+            Command::Paste => Shortcut::keypad_off(btreeset!{LeftControl}, V),
+
+            Command::Cut if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{RightWindowsCommand}, X)
+            }
+
+            Command::Cut => Shortcut::keypad_off(btreeset!{LeftControl}, NonModifier::X),
+
+            Command::Undo if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{RightWindowsCommand}, Z)
+            }
+
+            Command::Undo => Shortcut::keypad_off(btreeset!{LeftControl}, Z),
+
+            Command::JumpForward if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{LeftAlt}, RightArrow)
+            }
+
+            Command::JumpForward => Shortcut::keypad_off(btreeset!{LeftControl}, RightArrow),
+
+            Command::JumpBack if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{LeftAlt}, LeftArrow)
+            }
+
+            Command::JumpBack => Shortcut::keypad_off(btreeset!{LeftControl}, C),
+
+            Command::LineEnd if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{RightWindowsCommand}, LeftArrow)
+            }
+
+            Command::LineEnd => Shortcut::keypad_off(btreeset!{}, End),
+
+            Command::LineStart if system.is_mac() => {
+                Shortcut::keypad_off(btreeset!{RightWindowsCommand}, RightArrow)
+            }
+
+            Command::LineStart => Shortcut::keypad_off(btreeset!{}, Home),
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
+pub struct MacroOutputTemp(Vec<MacroComponent>);
+
+impl MacroOutputTemp {
+    pub fn from_string(s: &str) -> Self {
+        MacroOutputTemp(vec![MacroComponent::KeyPresses(string_to_key_presses(s))])
+    }
+
+    pub fn from_string_move_cursor(s: &str, back: usize) -> Self {
+        let mut key_presses = string_to_key_presses(s);
+
+        let arrows = vec![KeyPress::not_shifted(NonModifier::LeftArrow); back];
+        key_presses.extend(arrows);
+
+        MacroOutputTemp(vec![MacroComponent::KeyPresses(key_presses)])
+    }
+
+    pub fn shortcut(shortcut: Shortcut) -> Self {
+        MacroOutputTemp(vec![MacroComponent::Shortcut(shortcut)])
+    }
+
+    pub fn command(command: Command) -> Self {
+        MacroOutputTemp(vec![MacroComponent::Command(command)])
+    }
+
+    pub fn to_macro_output(&self, system: &System) -> MacroOutput {
+        MacroOutput(self.0.iter().map(|x| x.to_either(system)).collect())
+    }
+}
+
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
+pub enum MacroComponent {
+    KeyPresses(Vec<KeyPress>),
+    Shortcut(Shortcut),
+    Command(Command),
+}
+
+impl MacroComponent {
+    fn to_either(&self, system: &System) -> Either<Vec<KeyPress>, Shortcut> {
+        match self {
+            MacroComponent::KeyPresses(presses) => Left(presses.clone()),
+            MacroComponent::Shortcut(shortcut) => Right(shortcut.clone()),
+            MacroComponent::Command(command) => Right(command.to_shortcut(system)),
+        }
+    }
 }

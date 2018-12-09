@@ -1,19 +1,25 @@
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 
-use keys::{Key, KeyLayer, Modifier, NonModifier, Shortcut};
+use keys::*;
 use layout::Layout;
-use macros::MacroOutput;
+use macros::*;
 
 #[derive(PartialEq, Eq, Clone, Debug, Default)]
 pub struct Configure {
+    system: System,
     remappings: HashMap<KeyLayer, Option<KeyLayer>>,
-    macros: HashMap<Shortcut, MacroOutput>,
+    macros: HashMap<Shortcut, MacroOutputTemp>,
 }
 
 impl Configure {
     pub fn new() -> Configure {
         Default::default()
+    }
+
+    pub fn set_system(&mut self, system: System) -> &mut Configure {
+        self.system = system;
+        self
     }
 
     pub fn remap(&mut self, old_key: Key, new_key: Key) -> &mut Configure {
@@ -67,7 +73,11 @@ impl Configure {
         self
     }
 
-    pub fn with_macro(&mut self, shortcut: Shortcut, macro_output: MacroOutput) -> &mut Configure {
+    pub fn with_macro(
+        &mut self,
+        shortcut: Shortcut,
+        macro_output: MacroOutputTemp,
+    ) -> &mut Configure {
         self.macros.insert(shortcut, macro_output);
         self
     }
@@ -75,11 +85,11 @@ impl Configure {
     pub fn invert_key(&mut self, key: NonModifier) -> &mut Configure {
         self.macros.insert(
             Shortcut::keypad_off(BTreeSet::new(), key),
-            MacroOutput::shortcut(Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key)),
+            MacroOutputTemp::shortcut(Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key)),
         );
         self.macros.insert(
             Shortcut::keypad_off(btreeset!{Modifier::RightShift}, key),
-            MacroOutput::shortcut(Shortcut::keypad_off(BTreeSet::new(), key)),
+            MacroOutputTemp::shortcut(Shortcut::keypad_off(BTreeSet::new(), key)),
         );
         self
     }
@@ -87,11 +97,11 @@ impl Configure {
     pub fn invert_keypad_key(&mut self, key: NonModifier) -> &mut Configure {
         self.macros.insert(
             Shortcut::keypad_on(BTreeSet::new(), key),
-            MacroOutput::shortcut(Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key)),
+            MacroOutputTemp::shortcut(Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key)),
         );
         self.macros.insert(
             Shortcut::keypad_on(btreeset!{Modifier::RightShift}, key),
-            MacroOutput::shortcut(Shortcut::keypad_on(BTreeSet::new(), key)),
+            MacroOutputTemp::shortcut(Shortcut::keypad_on(BTreeSet::new(), key)),
         );
         self
     }
@@ -114,7 +124,11 @@ impl Configure {
     pub fn make(&self) -> Layout {
         Layout {
             remappings: self.remappings.clone(),
-            macros: self.macros.clone(),
+            macros: self
+                .macros
+                .iter()
+                .map(|(k, v)| (k.clone(), v.to_macro_output(&self.system)))
+                .collect(),
         }
     }
 }

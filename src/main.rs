@@ -23,7 +23,10 @@ fn main() {
         .invert_numbers()
         .with_macro(
             Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, T),
-            MacroOutput::from_string_move_cursor("www.test.com\nTHANKS", 6),
+            MacroBuilder::new()
+                .with_string("www.test.com\nTHANKS")
+                .cursor_left(6)
+                .make(),
         ).with_macro(
             Shortcut::keypad_off(btreeset!{RightShift, LeftAlt}, I),
             MacroBuilder::new()
