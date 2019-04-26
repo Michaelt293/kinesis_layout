@@ -115,7 +115,7 @@ pub enum NonModifier {
 
 impl fmt::Display for NonModifier {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use keys::NonModifier::*;
+        use crate::keys::NonModifier::*;
 
         match self {
             One => write!(f, "1"),

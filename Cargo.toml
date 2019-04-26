@@ -1,5 +1,6 @@
 [package]
 name = "kinesis_layout"
+edition = "2018"
 version = "0.1.0"
 authors = ["Michael Thomas <Michaelt293@gmail.com>"]
 

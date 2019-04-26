@@ -2,7 +2,7 @@ use std::fmt;
 
 use either::*;
 
-use keys::*;
+use crate::keys::*;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub struct MacroOutput(Vec<Either<Vec<KeyPress>, Shortcut>>);
@@ -235,8 +235,8 @@ pub enum Command {
 
 impl Command {
     fn to_shortcut(self, system: System) -> Shortcut {
-        use keys::Modifier::*;
-        use keys::NonModifier::*;
+        use crate::keys::Modifier::*;
+        use crate::keys::NonModifier::*;
 
         match self {
             Command::Copy if system.is_mac() => {

@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use std::fmt;
 
-use keys::*;
-use macros::*;
+use crate::keys::*;
+use crate::macros::*;
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Layout {

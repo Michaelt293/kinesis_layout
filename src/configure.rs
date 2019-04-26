@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 use std::collections::HashMap;
 
-use keys::*;
-use layout::Layout;
-use macros::*;
+use crate::keys::*;
+use crate::layout::Layout;
+use crate::macros::*;
 
 #[derive(PartialEq, Eq, Clone, Debug, Default)]
 pub struct Configure {
