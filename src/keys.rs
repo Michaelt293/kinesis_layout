@@ -1,12 +1,14 @@
 use std::collections::BTreeSet;
 use std::fmt;
 
+/// Models wherever the keypad layer is on or off.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum Keypad {
     Off,
     On,
 }
 
+/// Represents the modifier keys.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum Modifier {
     LeftShift,
@@ -36,6 +38,7 @@ impl fmt::Display for Modifier {
     }
 }
 
+/// Represents the non-modifier keys.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum NonModifier {
     F1,
@@ -158,6 +161,7 @@ impl fmt::Display for NonModifier {
     }
 }
 
+/// Represents the keys of a Kinesis Advantage 2. A key is either a modifier or non-modifier key.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub enum Key {
     Modifier(Modifier),
@@ -173,6 +177,7 @@ impl fmt::Display for Key {
     }
 }
 
+/// Models a `Key` together with information on whether the keypad layer is on or off.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub struct KeyLayer {
     keypad_state: Keypad,
@@ -180,14 +185,17 @@ pub struct KeyLayer {
 }
 
 impl KeyLayer {
+    /// A convenience method for creating a `KeyLayer`.
     pub fn new(keypad_state: Keypad, key: Key) -> Self {
         KeyLayer { keypad_state, key }
     }
 
+    /// Creates a `KeyLayer` value with the keypad layer set to off.
     pub fn off(key: Key) -> Self {
         KeyLayer::new(Keypad::Off, key)
     }
 
+    /// Creates a `KeyLayer` value with the keypad layer set to on.
     pub fn on(key: Key) -> Self {
         KeyLayer::new(Keypad::On, key)
     }
@@ -224,6 +232,8 @@ impl fmt::Display for KeyLayer {
     }
 }
 
+/// A datatype to model using a non-modifier key. A non-modifier key may be used with or without
+/// a shift modifier key.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub struct KeyPress {
     pub shifted: bool,
@@ -231,19 +241,24 @@ pub struct KeyPress {
 }
 
 impl KeyPress {
+    /// A convenience method for creating a `KeyPress`.
     pub fn new(shifted: bool, key: NonModifier) -> Self {
         KeyPress { shifted, key }
     }
 
+    /// A convenience method for creating a `KeyPress` with `shifted` set to `false`.
     pub fn not_shifted(key: NonModifier) -> Self {
         KeyPress::new(false, key)
     }
 
+    /// A convenience method for creating a `KeyPress` with `shifted` set to `true`.
     pub fn shifted(key: NonModifier) -> Self {
         KeyPress::new(true, key)
     }
 }
 
+/// A shortcut is modelled as a (possibly empty) set of modifier keys with a non-modifier key.
+/// A shortcut may be in either the normal or keypad layers.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Hash, Debug)]
 pub struct Shortcut {
     pub keypad: Keypad,
@@ -252,6 +267,7 @@ pub struct Shortcut {
 }
 
 impl Shortcut {
+    /// A convenience method for creating a `Shortcut`.
     fn new(keypad: Keypad, modifiers: BTreeSet<Modifier>, non_modifier: NonModifier) -> Shortcut {
         Shortcut {
             keypad,
@@ -260,10 +276,12 @@ impl Shortcut {
         }
     }
 
+    /// Creates a shortcut in the normal layer (i.e., with the keypad layer off).
     pub fn keypad_off(modifiers: BTreeSet<Modifier>, non_modifier: NonModifier) -> Shortcut {
         Shortcut::new(Keypad::Off, modifiers, non_modifier)
     }
 
+    /// Creates a shortcut in the keypad layer.
     pub fn keypad_on(modifiers: BTreeSet<Modifier>, non_modifier: NonModifier) -> Shortcut {
         Shortcut::new(Keypad::On, modifiers, non_modifier)
     }
@@ -283,7 +301,8 @@ impl fmt::Display for Shortcut {
             format!(
                 "{{{}}}",
                 KeyLayer::new(self.keypad, Key::NonModifier(self.non_modifier))
-            ).as_str(),
+            )
+            .as_str(),
         );
 
         write!(f, "{}", string)

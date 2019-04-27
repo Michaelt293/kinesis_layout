@@ -7,3 +7,6 @@ authors = ["Michael Thomas <Michaelt293@gmail.com>"]
 [dependencies]
 either = "1.5"
 maplit = "1.0.1"
+
+[dev-dependencies]
+indoc = "0.3"
