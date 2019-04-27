@@ -7,6 +7,8 @@ extern crate either;
 #[macro_use]
 extern crate maplit;
 
+pub use maplit::btreeset;
+
 pub mod configure;
 pub mod keys;
 pub mod layout;
