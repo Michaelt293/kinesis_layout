@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::fmt;
 
-/// Models wherever the keypad layer is on or off.
+/// Models whether the keypad layer is on or off.
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum Keypad {
     Off,
@@ -114,6 +114,7 @@ pub enum NonModifier {
     DownArrow,
     Home,
     End,
+    CapsLock
 }
 
 impl fmt::Display for NonModifier {
@@ -156,6 +157,7 @@ impl fmt::Display for NonModifier {
             DownArrow => write!(f, "down"),
             Home => write!(f, "home"),
             End => write!(f, "end"),
+            CapsLock => write!(f, "caps"),
             key => write!(f, "{}", format!("{:?}", key)),
         }
     }
