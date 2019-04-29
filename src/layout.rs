@@ -2,9 +2,11 @@ use std::collections::HashMap;
 
 use std::fmt;
 
-use keys::*;
-use macros::*;
+use crate::keys::*;
+use crate::macros::*;
 
+/// `Layout` represents a keyboard layout including key remappings and macros. A `Layout`
+///  should be constructed from a `Configuration` using the builder pattern.
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Layout {
     pub remappings: HashMap<KeyLayer, Option<KeyLayer>>,
@@ -38,6 +40,7 @@ impl fmt::Display for Layout {
     }
 }
 
+/// Key remappings for the `colemak` keyboard layout.
 pub fn colemak() -> HashMap<KeyLayer, Option<KeyLayer>> {
     use self::NonModifier::*;
 
@@ -61,21 +64,3 @@ pub fn colemak() -> HashMap<KeyLayer, Option<KeyLayer>> {
         KeyLayer::off(Key::NonModifier(N)) => Some(KeyLayer::off(Key::NonModifier(K)))
     }
 }
-
-//[T]>[G]
-//[R]>[P]
-//[E]>[F]
-//[G]>[D]
-//[F]>[T]
-//[D]>[S]
-//[S]>[R]
-//[Y]>[J]
-//[U]>[L]
-//[I]>[U]
-//[O]>[Y]
-//[P]>[;]
-//[J]>[N]
-//[K]>[E]
-//[L]>[I]
-//[;]>[O]
-//[N]>[K]

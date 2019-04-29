@@ -1,5 +1,6 @@
 [package]
 name = "kinesis_layout"
+edition = "2018"
 version = "0.1.0"
 authors = ["Michael Thomas <Michaelt293@gmail.com>"]
 
@@ -7,7 +8,5 @@ authors = ["Michael Thomas <Michaelt293@gmail.com>"]
 either = "1.5"
 maplit = "1.0.1"
 
-[[bin]]
-bench = false
-path = "src/main.rs"
-name = "kinesis"
+[dev-dependencies]
+indoc = "0.3"
