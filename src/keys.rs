@@ -114,7 +114,8 @@ pub enum NonModifier {
     DownArrow,
     Home,
     End,
-    CapsLock
+    CapsLock,
+    International
 }
 
 impl fmt::Display for NonModifier {
@@ -158,6 +159,7 @@ impl fmt::Display for NonModifier {
             Home => write!(f, "home"),
             End => write!(f, "end"),
             CapsLock => write!(f, "caps"),
+            International => write!(f, r#"int-\"#),
             key => write!(f, "{}", format!("{:?}", key)),
         }
     }
@@ -227,6 +229,7 @@ impl fmt::Display for KeyLayer {
                 Key::NonModifier(NonModifier::Zero) => write!(f, "kpmult"),
                 Key::NonModifier(NonModifier::P) => write!(f, "kpmin"),
                 Key::NonModifier(NonModifier::ForwardSlash) => write!(f, "kpenter1"),
+                Key::NonModifier(NonModifier::International) => write!(f, "kp-insert"),
                 Key::NonModifier(ref key) => write!(f, "kp-{}", key),
                 Key::Modifier(ref key) => write!(f, "kp-{}", key),
             }

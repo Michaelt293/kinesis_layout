@@ -199,6 +199,7 @@ fn char_to_key(c: char) -> NonModifier {
         '/' | '?' => ForwardSlash,
         '[' | '{' => OpenBracket,
         ']' | '}' => CloseBracket,
+        '`' | '~' => Backtick,
         '\n' => Enter,
         ' ' => Space,
         c => panic!("Oh No".to_owned() + format!("{}", c).as_str()),
