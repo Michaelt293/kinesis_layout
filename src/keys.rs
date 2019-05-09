@@ -115,7 +115,7 @@ pub enum NonModifier {
     Home,
     End,
     CapsLock,
-    International
+    International,
 }
 
 impl fmt::Display for NonModifier {
@@ -159,7 +159,7 @@ impl fmt::Display for NonModifier {
             Home => write!(f, "home"),
             End => write!(f, "end"),
             CapsLock => write!(f, "caps"),
-            International => write!(f, r#"int-\"#),
+            International => write!(f, r#"intl-\"#),
             key => write!(f, "{}", format!("{:?}", key)),
         }
     }

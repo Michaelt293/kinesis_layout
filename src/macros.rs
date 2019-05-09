@@ -224,12 +224,13 @@ fn string_to_key_presses(s: &str) -> Vec<KeyPress> {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Debug)]
 pub enum System {
     PC,
+    Windows,
     Mac,
 }
 
 impl System {
     /// Indicates whether or not `System` is a Mac.
-    fn is_mac(self) -> bool {
+    pub fn is_mac(self) -> bool {
         self == System::Mac
     }
 }

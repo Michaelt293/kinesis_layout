@@ -159,9 +159,21 @@ impl Configure {
 
     /// Converts a `Configuration` to a `Layout`. The `system` field of `Configuration` is used to
     /// create macros with the correct keyboard shortcuts.
-    pub fn make(&self) -> Layout {
+    pub fn make(&mut self) -> Layout {
+        use self::Modifier::*;
+
+        let remappings = if self.system.is_mac() {
+            hashmap! {
+                KeyLayer::off(Key::Modifier(LeftControl)) => Some(KeyLayer::off(Key::Modifier(LeftWindowsCommand))),
+                KeyLayer::off(Key::Modifier(RightControl)) => Some(KeyLayer::off(Key::Modifier(RightWindowsCommand))),
+                KeyLayer::off(Key::Modifier(RightWindowsCommand)) => Some(KeyLayer::off(Key::Modifier(RightControl)))
+            }
+        } else {
+            HashMap::new()
+        };
+
         Layout {
-            remappings: self.remappings.clone(),
+            remappings: self.with_remappings(remappings).remappings.clone(),
             macros: self
                 .macros
                 .iter()
